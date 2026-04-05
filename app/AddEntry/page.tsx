@@ -14,11 +14,31 @@ export default function AddEntry() {
     setError('');
     setLoading(true);
 
-    // ดึงพิกัดจากเครื่องผู้ใช้ เพื่อความแม่นยำในการเช็กสภาพอากาศ
+    // Check if geolocation is available
+    if (!navigator.geolocation) {
+      // Fallback without location
+      const res = await fetch('/api/entries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, mood }),
+      });
+
+      if (res.ok) {
+        router.push('/');
+        router.refresh();
+      } else {
+        const data = await res.json();
+        setError(data.error || 'เกิดข้อผิดพลาด');
+        setLoading(false);
+      }
+      return;
+    }
+
+    // Try to get user location
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude, longitude } = position.coords;
-
+        
         const res = await fetch('/api/entries', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -30,12 +50,13 @@ export default function AddEntry() {
           router.refresh();
         } else {
           const data = await res.json();
-          setError(data.error);
+          setError(data.error || 'เกิดข้อผิดพลาด');
           setLoading(false);
         }
       },
       async (err) => {
-        // ถ้าผู้ใช้ไม่อนุญาตให้เข้าถึงตำแหน่ง ให้ส่งแบบไม่มีพิกัด (ระบบหลังบ้านจะดึงตามชื่อเมืองเริ่มต้นแทน)
+        console.error("Geolocation error:", err);
+        // Fallback without location
         const res = await fetch('/api/entries', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -47,7 +68,7 @@ export default function AddEntry() {
           router.refresh();
         } else {
           const data = await res.json();
-          setError(data.error);
+          setError(data.error || 'เกิดข้อผิดพลาด');
           setLoading(false);
         }
       }
@@ -59,7 +80,7 @@ export default function AddEntry() {
       <h2 className="text-2xl font-bold mb-4 text-[#333]">📝 บันทึกอารมณ์วันนี้</h2>
       
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* เลือก Emoji */}
+        {/* Select Emoji */}
         <div>
           <label className="block font-bold mb-2">วันนี้รู้สึกอย่างไร?</label>
           <div className="flex gap-4 text-3xl justify-center">
@@ -76,7 +97,7 @@ export default function AddEntry() {
           </div>
         </div>
 
-        {/* พิมพ์ข้อความ (ปรับเป็น Textarea เพื่อให้พิมพ์ได้จุใจขึ้น) */}
+        {/* Message input */}
         <div>
           <label className="block font-bold mb-2">เล่าให้ฟังหน่อย</label>
           <textarea
@@ -85,6 +106,7 @@ export default function AddEntry() {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             maxLength={300}
+            required
           />
           <p className="text-xs text-gray-400 mt-1 flex justify-end">{message.length}/300 ตัวอักษร</p>
         </div>
@@ -96,7 +118,7 @@ export default function AddEntry() {
           disabled={loading}
           className={`w-full text-white font-bold p-3 rounded-lg transition-colors ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#997A2E] hover:bg-[#7a6124]'}`}
         >
-          {loading ? 'กำลังบันทึกข้อมูลและสภาพอากาศ...' : 'บันทึกไดอารี่'}
+          {loading ? 'กำลังบันทึกข้อมูล...' : 'บันทึกไดอารี่'}
         </button>
       </form>
     </div>

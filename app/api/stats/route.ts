@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@/prisma/generated/client";
+// เปลี่ยนบรรทัดนี้เพื่อถอยหลังออกจากโฟลเดอร์ app/api/stats ไปหา prisma นอกสุด
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
