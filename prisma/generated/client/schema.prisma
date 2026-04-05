@@ -1,0 +1,19 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/client"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Entry {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  message     String
+  mood        String // เช่น 😊, 😢, 😡
+  weatherCity String // ภูเก็ต
+  weatherTemp Float // 28.5
+  weatherDesc String // ฝนตก
+}
