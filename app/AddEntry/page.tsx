@@ -1,7 +1,73 @@
-import React from 'react'
+'use client'
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function AddEntry() {
+  const [message, setMessage] = useState('');
+  const [mood, setMood] = useState('😊');
+  const [error, setError] = useState('');
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    const res = await fetch('/api/entries', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message, mood }),
+    });
+
+    if (res.ok) {
+      router.push('/'); // บันทึกเสร็จให้เด้งไปหน้าแรก
+      router.refresh();
+    } else {
+      const data = await res.json();
+      setError(data.error);
+    }
+  };
+
   return (
-    <div>ADD ENTRY</div>
-  )
+    <div className="max-w-md mx-auto bg-white p-6 rounded-xl shadow-md border border-amber-200">
+      <h2 className="text-2xl font-bold mb-4 text-[#333]">📝 บันทึกอารมณ์วันนี้</h2>
+      
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* เลือก Emoji */}
+        <div>
+          <label className="block font-bold mb-2">วันนี้รู้สึกอย่างไร?</label>
+          <div className="flex gap-4 text-3xl">
+            {['😊', '😭', '😡', '😴'].map((emoji) => (
+              <button
+                key={emoji}
+                type="button"
+                className={`p-2 rounded-full transition-all ${mood === emoji ? 'bg-amber-200 scale-110' : 'hover:bg-gray-100'}`}
+                onClick={() => setMood(emoji)}
+              >
+                {emoji}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* พิมพ์ข้อความ */}
+        <div>
+          <label className="block font-bold mb-2">เล่าให้ฟังหน่อย (สั้นๆ 1 ประโยค)</label>
+          <input
+            type="text"
+            className="w-full border-2 border-gray-300 p-2 rounded-lg focus:outline-none focus:border-amber-400"
+            placeholder="วันนี้กินของอร่อย..."
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+          />
+          <p className="text-xs text-gray-400 mt-1">{message.length}/300 ตัวอักษร</p>
+        </div>
+
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+
+        <button type="submit" className="w-full bg-[#997A2E] text-white font-bold p-3 rounded-lg hover:bg-[#7a6124] transition-colors">
+          บันทึกไดอารี่
+        </button>
+      </form>
+    </div>
+  );
 }
