@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@/prisma/generated/client";
 import { z } from "zod";
 
 const prisma = new PrismaClient();
@@ -19,8 +19,8 @@ export async function POST(request: Request) {
     const validatedData = entrySchema.parse(body);
 
     // --- ส่วนดึง Weather API ---
-    const API_KEY = "fa4def56fd7f671cc616e89a505b4cfe"; // อย่าลืมสมัคร OpenWeatherMap นะครับ
-    const city = "Phuket"; // สามารถเปลี่ยนเป็นเมืองที่ต้องการได้
+    const API_KEY = "fa4def56fd7f671cc616e89a505b4cfe";
+    const city = "Phuket";
     
     const weatherRes = await fetch(
       `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${API_KEY}`
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
 // 3. [R] - Read (ดึงข้อมูลไปแสดงไทม์ไลน์)
 export async function GET() {
   const entries = await prisma.entry.findMany({
-    orderBy: { createdAt: "desc" }, // เอาอันล่าสุดขึ้นก่อน
+    orderBy: { createdAt: "desc" },
   });
   return NextResponse.json(entries);
 }
