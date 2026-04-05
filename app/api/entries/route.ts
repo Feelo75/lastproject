@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     const validatedData = entrySchema.parse(body);
 
     // --- ส่วนดึง Weather API ---
-    const API_KEY = "ใส่_API_KEY_ของคุณ_ตรงนี้"; // อย่าลืมสมัคร OpenWeatherMap นะครับ
+    const API_KEY = "ef5a1a95b3cc30ddcc19d6964801f5e2"; // อย่าลืมสมัคร OpenWeatherMap นะครับ
     const city = "Phuket"; // สามารถเปลี่ยนเป็นเมืองที่ต้องการได้
     
     const weatherRes = await fetch(
