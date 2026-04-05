@@ -1,0 +1,8 @@
+import Image from "next/image";
+import React from 'react'
+
+export default function page() {
+  return (
+    <div className="text-4xl text-blue-400">page</div>
+  )
+}
